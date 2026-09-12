@@ -3,28 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ferrari LaFerrari Aperta | The Experience</title>
+  <title>Ferrari LaFerrari Aperta | Interactive Experience</title>
   <style>
     :root {
-      --primary-red: #d40000;
-      --bg-dark: #0a0a0a;
-      --card-bg: rgba(22, 22, 24, 0.85);
-      --border-glow: rgba(255, 255, 255, 0.12);
-      --font-main: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      --primary-red: #ff1801;
+      --bg-black: #060608;
+      --card-bg: rgba(14, 14, 18, 0.75);
+      --border-card: rgba(255, 255, 255, 0.12);
+      --text-muted: #8e8e93;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      -webkit-font-smoothing: antialiased;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
 
     body {
-      background-color: var(--bg-dark);
+      background-color: var(--bg-black);
       color: #fff;
-      font-family: var(--font-main);
       overflow-x: hidden;
+      min-height: 400vh;
     }
 
     /* Fixed WebGL Canvas Behind Content */
@@ -38,7 +38,7 @@
       pointer-events: none;
     }
 
-    /* Navbar */
+    /* Header Nav */
     header {
       position: fixed;
       top: 0;
@@ -48,37 +48,49 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 10;
-      backdrop-filter: blur(12px);
-      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+      z-index: 50;
+      background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
     }
 
-    .brand {
-      font-size: 1.25rem;
-      letter-spacing: 5px;
-      font-weight: 800;
+    .brand-logo {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 4px;
       text-transform: uppercase;
-      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .brand span { color: var(--primary-red); }
+    .badge-strip {
+      width: 4px;
+      height: 20px;
+      background: var(--primary-red);
+      display: inline-block;
+    }
+
+    nav {
+      display: flex;
+      gap: 2.5rem;
+    }
 
     nav a {
-      color: #bbb;
+      color: #aaa;
       text-decoration: none;
-      margin-left: 2rem;
-      font-size: 0.9rem;
-      letter-spacing: 1.5px;
+      font-size: 0.85rem;
       text-transform: uppercase;
+      letter-spacing: 2px;
       transition: color 0.3s;
     }
 
-    nav a:hover { color: #fff; }
+    nav a:hover {
+      color: #fff;
+    }
 
-    /* Scrollable Container */
-    .content-stream {
+    /* Content Layout */
+    .viewport-container {
       position: relative;
-      z-index: 2;
+      z-index: 10;
     }
 
     section {
@@ -86,378 +98,345 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 6rem 10vw;
+      padding: 4rem 8vw;
       position: relative;
     }
 
-    /* Hero Section */
+    /* Section 1: Hero Launch */
     #hero {
       align-items: flex-start;
       pointer-events: none;
     }
 
-    .hero-badge {
-      font-size: 0.85rem;
-      letter-spacing: 4px;
-      color: var(--primary-red);
+    .hero-tag {
+      font-size: 0.8rem;
+      letter-spacing: 6px;
       text-transform: uppercase;
+      color: var(--primary-red);
       margin-bottom: 1rem;
       font-weight: 700;
     }
 
     .hero-title {
-      font-size: clamp(3rem, 7vw, 6.5rem);
-      line-height: 0.95;
+      font-size: clamp(3rem, 8vw, 7rem);
+      line-height: 0.9;
       font-weight: 900;
-      letter-spacing: 2px;
       text-transform: uppercase;
-      max-width: 800px;
+      letter-spacing: 1px;
     }
 
-    .scroll-indicator {
+    .scroll-hint {
       position: absolute;
-      bottom: 2.5rem;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 3rem;
+      left: 8vw;
       font-size: 0.75rem;
       letter-spacing: 3px;
+      color: var(--text-muted);
       text-transform: uppercase;
-      color: #777;
-      animation: bounce 2s infinite;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
-      40% { transform: translateY(-10px) translateX(-50%); }
-      60% { transform: translateY(-5px) translateX(-50%); }
+    .scroll-hint span {
+      display: inline-block;
+      width: 40px;
+      height: 1px;
+      background: var(--primary-red);
     }
 
-    /* Customizer Section */
+    /* Section 2: Visual Configurator */
     #customizer {
       align-items: flex-end;
     }
 
-    .customizer-card {
+    .glass-panel {
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border-glow);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
       padding: 3rem;
-      border-radius: 12px;
       width: 100%;
-      max-width: 440px;
-      pointer-events: auto;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+      max-width: 480px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
     }
 
-    .customizer-card h2 {
-      font-size: 1.8rem;
+    .glass-panel h2 {
+      font-size: 2rem;
       text-transform: uppercase;
       letter-spacing: 2px;
       margin-bottom: 0.5rem;
     }
 
-    .color-swatches {
-      display: flex;
-      gap: 1rem;
-      margin: 1.8rem 0;
-    }
-
-    .swatch {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-
-    .swatch:hover { transform: scale(1.1); }
-    .swatch.active { border-color: #fff; transform: scale(1.15); }
-
-    .color-name {
-      font-size: 1rem;
-      color: #bbb;
-      margin-bottom: 1.5rem;
-      min-height: 24px;
-    }
-
-    /* History Section */
-    #history {
-      background: linear-gradient(180deg, transparent, rgba(10,10,10,0.95) 20%, rgba(10,10,10,0.95) 80%, transparent);
-    }
-
-    .history-container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .section-header {
-      font-size: 2.5rem;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      margin-bottom: 3rem;
-      border-left: 4px solid var(--primary-red);
-      padding-left: 1.5rem;
-    }
-
-    .timeline {
+    .swatches-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin: 2rem 0;
     }
 
-    .timeline-item {
+    .swatch-btn {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      outline: none;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .swatch-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .swatch-btn.active {
+      border-color: #fff;
+      transform: scale(1.15);
+    }
+
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.75rem 0;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    /* Section 3: History */
+    #history {
+      align-items: center;
+    }
+
+    .history-card {
+      max-width: 900px;
+      width: 100%;
       background: var(--card-bg);
-      border: 1px solid var(--border-glow);
-      padding: 2rem;
-      border-radius: 8px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 3.5rem;
     }
 
-    .timeline-year {
-      font-size: 1.5rem;
+    .history-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .history-item {
+      border-left: 2px solid var(--primary-red);
+      padding-left: 1.25rem;
+    }
+
+    .history-year {
       font-weight: 800;
       color: var(--primary-red);
-      margin-bottom: 0.5rem;
+      font-size: 1.25rem;
+      margin-bottom: 0.35rem;
     }
 
-    .timeline-item p {
-      color: #aaa;
-      font-size: 0.95rem;
-      line-height: 1.6;
+    .history-item p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
     }
 
-    /* Checkout Section */
+    /* Section 4: Checkout */
     #checkout {
       align-items: center;
     }
 
-    .checkout-box {
-      background: var(--card-bg);
-      backdrop-filter: blur(25px);
-      border: 1px solid var(--border-glow);
-      border-radius: 12px;
-      padding: 3.5rem;
+    .checkout-form {
+      max-width: 600px;
       width: 100%;
-      max-width: 650px;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
     }
 
-    .summary-line {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 1.2rem;
-      color: #aaa;
-    }
-
-    .summary-line.total {
-      font-size: 1.5rem;
-      font-weight: 800;
+    .form-input {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
       color: #fff;
-      border-top: 1px solid var(--border-glow);
-      padding-top: 1.5rem;
-      margin-top: 1.5rem;
+      font-size: 0.95rem;
     }
 
-    .checkout-btn {
+    .action-btn {
       width: 100%;
       padding: 1.25rem;
       background: var(--primary-red);
-      border: none;
       color: #fff;
+      border: none;
+      border-radius: 8px;
       font-weight: 800;
       letter-spacing: 2px;
       text-transform: uppercase;
-      cursor: pointer;
-      border-radius: 6px;
       font-size: 1rem;
-      margin-top: 2rem;
-      transition: background 0.3s, transform 0.2s;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: background 0.2s, transform 0.2s;
     }
 
-    .checkout-btn:hover {
-      background: #b30000;
+    .action-btn:hover {
+      background: #d40e00;
       transform: translateY(-2px);
     }
 
-    /* Modal */
-    .modal-backdrop {
+    /* Overlay Modal */
+    .payment-modal {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      z-index: 999;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(16px);
+      z-index: 100;
       display: none;
       align-items: center;
       justify-content: center;
     }
 
     .modal-box {
-      background: #141416;
-      border: 1px solid var(--border-glow);
-      padding: 2.5rem;
-      border-radius: 12px;
+      background: #111116;
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 3rem;
       width: 90%;
-      max-width: 450px;
-    }
-
-    .form-group {
-      margin-bottom: 1.2rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #888;
-      margin-bottom: 0.5rem;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      background: #202024;
-      border: 1px solid #333;
-      border-radius: 6px;
-      color: #fff;
-      font-size: 0.95rem;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 1rem;
+      max-width: 440px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="brand">Scuderia <span>Aperta</span></div>
+    <div class="brand-logo">
+      <span class="badge-strip"></span>
+      FERRARI ATELIER
+    </div>
     <nav>
-      <a href="#hero">Overview</a>
+      <a href="#hero">Aperta</a>
       <a href="#customizer">Configure</a>
-      <a href="#history">Legacy</a>
+      <a href="#history">Heritage</a>
       <a href="#checkout">Reserve</a>
     </nav>
   </header>
 
-  <!-- 3D Background Canvas -->
   <div id="webgl-canvas"></div>
 
-  <!-- Scrollable Sections -->
-  <div class="content-stream">
+  <div class="viewport-container">
     
-    <!-- Hero / Intro -->
+    <!-- 01: Hero Intro -->
     <section id="hero">
-      <div class="hero-badge">Limited Open-Top Hypercar</div>
-      <h1 class="hero-title">LaFerrari Spider</h1>
-      <div class="scroll-indicator">Scroll down to launch &darr;</div>
+      <div class="hero-tag">HY-KERS Electrified V12</div>
+      <h1 class="hero-title">LaFerrari<br/>Spider</h1>
+      <div class="scroll-hint">
+        <span></span> Scroll to advance vehicle
+      </div>
     </section>
 
-    <!-- Visualizer / Color Selection -->
+    <!-- 02: Color Customization -->
     <section id="customizer">
-      <div class="customizer-card">
-        <h2>Atelier Spec</h2>
-        <p style="color: #888; font-size: 0.9rem;">Configure factory livery applied directly to carbon-chassis components.</p>
-        
-        <div class="color-swatches">
-          <div class="swatch active" data-color="#d40000" data-name="Rosso Corsa" style="background: #d40000;"></div>
-          <div class="swatch" data-color="#f6b800" data-name="Giallo Modena" style="background: #f6b800;"></div>
-          <div class="swatch" data-color="#0d0d0d" data-name="Nero Daytona" style="background: #0d0d0d;"></div>
-          <div class="swatch" data-color="#eeeeee" data-name="Bianco Avus" style="background: #eeeeee;"></div>
-          <div class="swatch" data-color="#0a2a5e" data-name="Blu Tour de France" style="background: #0a2a5e;"></div>
+      <div class="glass-panel">
+        <h2>Livery Atelier</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+          Select genuine Maranello clear-coat finish. Applied over double-skin pre-preg carbon fiber.
+        </p>
+
+        <div class="swatches-grid">
+          <button class="swatch-btn active" data-color="#dd0000" data-name="Rosso Corsa" style="background:#dd0000;" title="Rosso Corsa"></button>
+          <button class="swatch-btn" data-color="#ffcc00" data-name="Giallo Modena" style="background:#ffcc00;" title="Giallo Modena"></button>
+          <button class="swatch-btn" data-color="#0a0a0a" data-name="Nero Daytona" style="background:#1a1a1a;" title="Nero Daytona"></button>
+          <button class="swatch-btn" data-color="#f2f2f2" data-name="Bianco Avus" style="background:#f2f2f2;" title="Bianco Avus"></button>
+          <button class="swatch-btn" data-color="#062f6e" data-name="Blu Tour de France" style="background:#062f6e;" title="Blu Tour de France"></button>
         </div>
 
-        <div class="color-name" id="selected-color-label">Selected: Rosso Corsa</div>
-        <a href="#checkout" style="color: var(--primary-red); font-weight: 700; text-decoration: none; font-size: 0.9rem; text-transform: uppercase;">Continue to Order &rarr;</a>
+        <div class="spec-row">
+          <span>Active Selection</span>
+          <strong id="color-label" style="color: var(--primary-red);">Rosso Corsa</strong>
+        </div>
+        <div class="spec-row">
+          <span>Combined Power</span>
+          <strong>950 BHP (963 CV)</strong>
+        </div>
+        <div class="spec-row">
+          <span>Aerodynamic Profile</span>
+          <strong>Aperta Open Cockpit</strong>
+        </div>
       </div>
     </section>
 
-    <!-- History / Heritage -->
+    <!-- 03: History & Heritage -->
     <section id="history">
-      <div class="history-container">
-        <h2 class="section-header">The Aperta Bloodline</h2>
-        <div class="timeline">
-          <div class="timeline-item">
-            <div class="timeline-year">1947</div>
-            <h3>125 S Genesis</h3>
-            <p>Enzo Ferrari unleashes the 1.5-liter V12 125 S on the Piacenza circuit, forging an era of uncompromising motorsport DNA.</p>
+      <div class="history-card">
+        <div class="hero-tag">Legacy of Scuderia</div>
+        <h2 style="font-size: 2.2rem; text-transform: uppercase; margin-bottom: 1rem;">Maranello Lineage</h2>
+        <div class="history-columns">
+          <div class="history-item">
+            <div class="history-year">1947</div>
+            <h4>125 S Ignition</h4>
+            <p>Enzo Ferrari's vision takes physical form on the Piacenza circuit, forging the uncompromising naturally aspirated V12 lineage.</p>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-year">2013</div>
-            <h3>Hybrid Revolution</h3>
-            <p>The definitive LaFerrari combines a screeching naturally aspirated 6.3L V12 with an F1-derived HY-KERS electric powertrain.</p>
+          <div class="history-item">
+            <div class="history-year">2013</div>
+            <h4>F1 HY-KERS</h4>
+            <p>Formula 1 electric recovery technologies blend seamlessly with road-car aerodynamics in the groundbreaking LaFerrari.</p>
           </div>
-          <div class="timeline-item">
-            <div class="timeline-year">2016</div>
-            <h3>The Spider/Aperta</h3>
-            <p>Produced to celebrate Ferrari's 70th Anniversary: an open-top roadster providing visceral open-air acoustics without aerodynamic loss.</p>
+          <div class="history-item">
+            <div class="history-year">2016</div>
+            <h4>The Aperta Spider</h4>
+            <p>Unveiled for Ferrari's 70th anniversary, combining unrestrained open-air V12 sound with zero aerodynamic compromise.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Checkout -->
+    <!-- 04: Checkout & Order Allocation -->
     <section id="checkout">
-      <div class="checkout-box">
-        <h2 style="font-size: 2rem; margin-bottom: 2rem; text-transform: uppercase;">Vehicle Allocation</h2>
+      <div class="glass-panel checkout-form">
+        <h2>Reserve Allocation</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+          Direct Maranello production slot allocation.
+        </p>
         
-        <div class="summary-line">
-          <span>Model</span>
-          <span style="color: #fff;">LaFerrari Aperta (V12 Spider)</span>
+        <div class="spec-row">
+          <span>Chassis Specification</span>
+          <strong>LaFerrari Aperta</strong>
         </div>
-        <div class="summary-line">
-          <span>Selected Livery</span>
-          <span style="color: #fff;" id="checkout-color">Rosso Corsa</span>
+        <div class="spec-row">
+          <span>Livery Choice</span>
+          <strong id="checkout-color-label">Rosso Corsa</strong>
         </div>
-        <div class="summary-line">
-          <span>Powertrain</span>
-          <span style="color: #fff;">6.3L V12 + 120 kW HY-KERS</span>
-        </div>
-        <div class="summary-line">
-          <span>Global Delivery & Inspection</span>
-          <span style="color: #fff;">Included</span>
-        </div>
-        <div class="summary-line total">
-          <span>MSRP Equivalent</span>
-          <span style="color: var(--primary-red);">$3,900,000</span>
+        <div class="spec-row">
+          <span>Production Deposit</span>
+          <strong style="color: var(--primary-red);">$250,000 USD</strong>
         </div>
 
-        <button class="checkout-btn" onclick="openPaymentModal()">Proceed to Deposit ($250,000)</button>
+        <button class="action-btn" onclick="openPayment()">Proceed to Wire Escrow</button>
       </div>
     </section>
 
   </div>
 
-  <!-- Modal Payment Gateway -->
-  <div class="modal-backdrop" id="paymentModal">
+  <!-- Escrow Modal -->
+  <div class="payment-modal" id="modal">
     <div class="modal-box">
-      <h3 style="font-size: 1.4rem; margin-bottom: 1.5rem; text-transform: uppercase;">Maranello Escrow Portal</h3>
-      <form onsubmit="handlePayment(event)">
-        <div class="form-group">
-          <label>Full Legal Name</label>
-          <input type="text" required placeholder="Enzo Ferrari" />
-        </div>
-        <div class="form-group">
-          <label>Escrow Wire / Card Routing Number</label>
-          <input type="text" required placeholder="•••• •••• •••• 9500" />
-        </div>
-        <div class="form-row">
-          <div class="form-group" style="flex:1;">
-            <label>Expiry</label>
-            <input type="text" required placeholder="MM/YY" />
-          </div>
-          <div class="form-group" style="flex:1;">
-            <label>CVC</label>
-            <input type="password" required maxlength="4" placeholder="123" />
-          </div>
-        </div>
-        <button type="submit" class="checkout-btn" style="margin-top: 1rem;">Authorize Escrow Deposit</button>
-        <button type="button" onclick="closePaymentModal()" style="background: none; border: none; color: #888; display: block; width: 100%; margin-top: 1rem; cursor: pointer;">Cancel</button>
-      </form>
+      <div class="hero-tag">Maranello Escrow Gateway</div>
+      <h3 style="font-size: 1.5rem; text-transform: uppercase; margin: 0.5rem 0 1.5rem;">Deposit Authorization</h3>
+      <input type="text" class="form-input" placeholder="Cardholder Legal Name" required />
+      <input type="text" class="form-input" placeholder="Card Number (4000 ... ... 9500)" required />
+      <div style="display:flex; gap: 1rem;">
+        <input type="text" class="form-input" placeholder="MM/YY" required />
+        <input type="password" class="form-input" placeholder="CVC" maxlength="4" required />
+      </div>
+      <button class="action-btn" onclick="confirmPayment()">Authorize Wire ($250,000)</button>
+      <button onclick="closePayment()" style="background:none; border:none; color:var(--text-muted); margin-top:1.2rem; cursor:pointer; width:100%;">Cancel Authorization</button>
     </div>
   </div>
 
@@ -473,230 +452,223 @@
   <script type="module">
     import * as THREE from 'three';
 
-    // --- Scene, Camera, and Renderer ---
+    // 1. Scene & Camera Setup
     const container = document.getElementById('webgl-canvas');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0a0a0a, 0.028);
+    scene.fog = new THREE.FogExp2(0x060608, 0.035);
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 1.6, 12);
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.4, 9.5);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.15;
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
 
-    // --- Studio Lighting ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    // 2. Studio Lighting Rig
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(ambientLight);
 
-    const mainSpot = new THREE.SpotLight(0xffffff, 40);
-    mainSpot.position.set(5, 10, 8);
-    mainSpot.angle = Math.PI / 4;
-    mainSpot.penumbra = 0.5;
-    mainSpot.castShadow = true;
-    scene.add(mainSpot);
+    const keySpot = new THREE.SpotLight(0xffffff, 35);
+    keySpot.position.set(5, 12, 6);
+    keySpot.angle = Math.PI / 4;
+    keySpot.penumbra = 0.5;
+    keySpot.castShadow = true;
+    scene.add(keySpot);
 
-    const backRim = new THREE.DirectionalLight(0xff2200, 4);
-    backRim.position.set(-6, 4, -8);
-    scene.add(backRim);
+    const rearRedRim = new THREE.DirectionalLight(0xff1100, 3.5);
+    rearRedRim.position.set(-6, 3, -8);
+    scene.add(rearRedRim);
 
-    // --- Ground Grid Reflection Surface ---
-    const groundGeo = new THREE.PlaneGeometry(100, 100);
-    const groundMat = new THREE.MeshStandardMaterial({
-      color: 0x050505,
-      roughness: 0.2,
-      metalness: 0.8
+    // 3. Reflective Showroom Floor & Speed Grid
+    const floorGeo = new THREE.PlaneGeometry(120, 120);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x050507,
+      roughness: 0.15,
+      metalness: 0.85
     });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    scene.add(ground);
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
 
-    const grid = new THREE.GridHelper(100, 60, 0x333333, 0x111111);
-    grid.position.y = 0.01;
+    const grid = new THREE.GridHelper(120, 50, 0x333333, 0x111111);
+    grid.position.y = 0.005;
     scene.add(grid);
 
-    // --- Procedural High-Detail Spider Group ---
-    // (Constructed dynamically so the car loads immediately without external asset delays)
-    const carGroup = new THREE.Group();
+    // 4. Procedural High-Fidelity Ferrari Spider Chassis
+    const car = new THREE.Group();
+    const wheels = [];
 
-    // Body Paint Material (Metallic Automotive Clear-Coat)
-    const carPaintMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color(0xd40000),
-      metalness: 0.85,
+    // Automotive Paint Shader
+    const paintMaterial = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(0xdd0000),
+      metalness: 0.88,
       roughness: 0.18,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.05,
-      reflectivity: 0.9
+      clearcoatRoughness: 0.04
     });
 
     const carbonMaterial = new THREE.MeshStandardMaterial({
-      color: 0x151515,
-      roughness: 0.4,
-      metalness: 0.6
+      color: 0x111113,
+      roughness: 0.5,
+      metalness: 0.5
     });
 
-    const wheelMaterial = new THREE.MeshStandardMaterial({
-      color: 0x111111,
-      roughness: 0.8
+    const glassMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x050505,
+      transparent: true,
+      opacity: 0.8,
+      roughness: 0.1,
+      metalness: 0.9
     });
 
-    const rimMaterial = new THREE.MeshStandardMaterial({
-      color: 0xcccccc,
-      metalness: 0.9,
-      roughness: 0.2
-    });
+    const tireMaterial = new THREE.MeshStandardMaterial({ color: 0x181818, roughness: 0.85 });
+    const rimMaterial = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, metalness: 0.95, roughness: 0.15 });
 
-    // 1. Sleek Chassis Body
-    const bodyGeo = new THREE.BoxGeometry(2.0, 0.45, 4.4);
-    const bodyMesh = new THREE.Mesh(bodyGeo, carPaintMaterial);
-    bodyMesh.position.y = 0.45;
-    bodyMesh.castShadow = true;
-    carGroup.add(bodyMesh);
+    // Streamlined Main Lower Tub
+    const lowerTubGeo = new THREE.BoxGeometry(1.9, 0.35, 4.3);
+    const lowerTub = new THREE.Mesh(lowerTubGeo, paintMaterial);
+    lowerTub.position.y = 0.32;
+    lowerTub.castShadow = true;
+    car.add(lowerTub);
 
-    // 2. Open-Top Spider Cockpit & Aero Fairings
-    const cockpitGeo = new THREE.BoxGeometry(1.4, 0.35, 1.8);
-    const cockpitMesh = new THREE.Mesh(cockpitGeo, carbonMaterial);
-    cockpitMesh.position.set(0, 0.75, -0.2);
-    carGroup.add(cockpitMesh);
+    // Aerodynamic Curved Cockpit Hood
+    const noseGeo = new THREE.CylinderGeometry(0.8, 1.0, 1.8, 16);
+    noseGeo.rotateX(Math.PI / 2);
+    noseGeo.scale(1, 0.28, 1.2);
+    const nose = new THREE.Mesh(noseGeo, paintMaterial);
+    nose.position.set(0, 0.34, 1.4);
+    nose.castShadow = true;
+    car.add(nose);
 
-    // Aerodynamic Twin Rear Fairings (Aperta signature)
-    const fairingGeo = new THREE.CylinderGeometry(0.15, 0.28, 1.2, 16);
-    fairingGeo.rotateX(Math.PI / 2);
-    const leftFairing = new THREE.Mesh(fairingGeo, carPaintMaterial);
-    leftFairing.position.set(-0.45, 0.8, -0.6);
-    const rightFairing = leftFairing.clone();
-    rightFairing.position.x = 0.45;
-    carGroup.add(leftFairing, rightFairing);
+    // Front Splitter Under-Wing (Formula 1 Aero)
+    const splitterGeo = new THREE.BoxGeometry(1.95, 0.05, 0.6);
+    const splitter = new THREE.Mesh(splitterGeo, carbonMaterial);
+    splitter.position.set(0, 0.15, 2.3);
+    car.add(splitter);
 
-    // 3. Front Wedge Nose
-    const noseGeo = new THREE.ConeGeometry(0.95, 1.4, 4);
-    noseGeo.rotateX(-Math.PI / 2);
-    const nose = new THREE.Mesh(noseGeo, carPaintMaterial);
-    nose.position.set(0, 0.38, 2.7);
-    nose.scale.set(1.4, 0.35, 0.8);
-    carGroup.add(nose);
+    // Open-Top Spider Cockpit (Interior Tunnel)
+    const cockpitGeo = new THREE.BoxGeometry(1.25, 0.3, 1.5);
+    const cockpit = new THREE.Mesh(cockpitGeo, carbonMaterial);
+    cockpit.position.set(0, 0.55, -0.1);
+    car.add(cockpit);
 
-    // 4. Wheels
-    const tireGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.35, 24);
+    // Raked Windshield
+    const windshieldGeo = new THREE.PlaneGeometry(1.2, 0.55);
+    const windshield = new THREE.Mesh(windshieldGeo, glassMaterial);
+    windshield.position.set(0, 0.65, 0.65);
+    windshield.rotation.x = -Math.PI / 3;
+    car.add(windshield);
+
+    // Twin Sculpted Flying Buttresses (Aperta Signature Cowls)
+    const buttressGeo = new THREE.CylinderGeometry(0.12, 0.22, 1.1, 16);
+    buttressGeo.rotateX(Math.PI / 2);
+    const buttressLeft = new THREE.Mesh(buttressGeo, paintMaterial);
+    buttressLeft.position.set(-0.42, 0.62, -0.6);
+    buttressLeft.castShadow = true;
+
+    const buttressRight = buttressLeft.clone();
+    buttressRight.position.x = 0.42;
+    car.add(buttressLeft, buttressRight);
+
+    // High-Detail Wheels (Tire + Multi-spoke Rim Disc)
+    const tireGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.28, 24);
     tireGeo.rotateZ(Math.PI / 2);
-    const rimGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.36, 16);
+    const rimGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.29, 16);
     rimGeo.rotateZ(Math.PI / 2);
 
-    const wheelPositions = [
-      [-1.0, 0.38, 1.4],  // front left
-      [1.0, 0.38, 1.4],   // front right
-      [-1.02, 0.4, -1.4], // rear left
-      [1.02, 0.4, -1.4]   // rear right
+    const wheelCoordinates = [
+      [-0.95, 0.36, 1.3],  // Front Left
+      [0.95, 0.36, 1.3],   // Front Right
+      [-0.98, 0.38, -1.3], // Rear Left
+      [0.98, 0.38, -1.3]   // Rear Right
     ];
 
-    wheelPositions.forEach(pos => {
-      const tire = new THREE.Mesh(tireGeo, wheelMaterial);
+    wheelCoordinates.forEach(pos => {
+      const wheelHolder = new THREE.Group();
+      const tire = new THREE.Mesh(tireGeo, tireMaterial);
       const rim = new THREE.Mesh(rimGeo, rimMaterial);
-      tire.position.set(...pos);
-      rim.position.set(...pos);
       tire.castShadow = true;
-      carGroup.add(tire);
-      carGroup.add(rim);
+      wheelHolder.add(tire, rim);
+      wheelHolder.position.set(...pos);
+      car.add(wheelHolder);
+      wheels.push(wheelHolder);
     });
 
-    scene.add(carGroup);
+    // LED Headlight projector strips
+    const lightGlowMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const headlightGeo = new THREE.BoxGeometry(0.35, 0.05, 0.05);
+    const headL = new THREE.Mesh(headlightGeo, lightGlowMat);
+    headL.position.set(-0.65, 0.45, 2.2);
+    headL.rotation.y = -0.2;
 
-    // --- Scroll Driven Animation Logic ---
-    // At top of page: car starts deep back on the track (z = -18)
-    // As user scrolls: drives forward towards camera, banks slightly, stops in presentation pose
+    const headR = headL.clone();
+    headR.position.x = 0.65;
+    headR.rotation.y = 0.2;
+    car.add(headL, headR);
+
+    // Mount complete car group
+    scene.add(car);
+
+    // 5. Scroll Animation Controller
     let scrollFraction = 0;
-
-    function onScroll() {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      scrollFraction = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+    function updateScrollProgress() {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      scrollFraction = Math.max(0, Math.min(1, window.scrollY / (totalScroll || 1)));
     }
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', updateScrollProgress, { passive: true });
 
-    // --- Render Loop with Smooth Interpolation ---
-    let targetZ = -18;
+    // Target transforms for interpolation
+    let targetZ = -22;
     let targetX = 0;
     let targetRotY = 0;
 
-    function animate() {
-      requestAnimationFrame(animate);
+    // 6. Real-Time Render Loop
+    function renderLoop() {
+      requestAnimationFrame(renderLoop);
 
-      // Interpolate driving motion depending on scroll depth:
-      // Hero (0.0): In the background driving forward
-      // Customizer (0.33): Stops in clear view, angles for showroom view
-      // History (0.66): Slides over to reveal timeline cards
-      // Checkout (1.0): Settles front-center
-      if (scrollFraction < 0.35) {
-        const norm = scrollFraction / 0.35;
-        targetZ = -18 + norm * 18.5; // Arrives from -18 to +0.5
-        targetX = Math.sin(norm * Math.PI) * -1.8;
-        targetRotY = (1 - norm) * 0.4;
-      } else if (scrollFraction < 0.7) {
-        targetZ = 0.5;
-        targetX = -2.2; // Slide left so customizer UI stays clear
-        targetRotY = -0.55;
+      // Section-based choreographed stages:
+      if (scrollFraction < 0.3) {
+        // [Stage 1: Hero] Car screams from back tunnel straight towards the camera
+        const p = scrollFraction / 0.3;
+        targetZ = -22 + p * 23.5; // moves from -22 to +1.5
+        targetX = Math.sin(p * Math.PI) * -0.8;
+        targetRotY = (1 - p) * 0.2;
+      } else if (scrollFraction < 0.65) {
+        // [Stage 2: Customizer] Pulls alongside smoothly to display the Atelier panel
+        targetZ = 1.6;
+        targetX = -1.9;
+        targetRotY = -0.52;
       } else {
-        targetZ = 1.0;
-        targetX = 1.8; // Slide right for checkout view
+        // [Stage 3: Heritage & Checkout] Rotates into a clean angled showcase position
+        targetZ = 2.2;
+        targetX = 1.7;
         targetRotY = 0.45;
       }
 
-      // Smooth camera/car dampening (Lerp)
-      carGroup.position.z += (targetZ - carGroup.position.z) * 0.05;
-      carGroup.position.x += (targetX - carGroup.position.x) * 0.05;
-      carGroup.rotation.y += (targetRotY - carGroup.rotation.y) * 0.05;
+      // Smooth Lerp transitions
+      car.position.z += (targetZ - car.position.z) * 0.07;
+      car.position.x += (targetX - car.position.x) * 0.07;
+      car.rotation.y += (targetRotY - car.rotation.y) * 0.07;
 
-      // Subtle resting idle vibration
-      carGroup.position.y = Math.sin(Date.now() * 0.003) * 0.015;
+      // Realistic V12 engine idle micro-vibration
+      car.position.y = Math.sin(Date.now() * 0.02) * 0.006;
+
+      // Rotate wheels when car is physically driving forward during initial scroll
+      if (Math.abs(targetZ - car.position.z) > 0.05) {
+        wheels.forEach(w => w.rotation.x += 0.25);
+      }
 
       renderer.render(scene, camera);
     }
-    animate();
+    renderLoop();
 
-    // --- Color Customizer Interaction ---
-    window.changeColor = function(hex, name) {
-      carPaintMaterial.color.set(hex);
-      document.getElementById('selected-color-label').innerText = `Selected: ${name}`;
-      document.getElementById('checkout-color').innerText = name;
-    };
-
-    document.querySelectorAll('.swatch').forEach(swatch => {
-      swatch.addEventListener('click', (e) => {
-        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
-        e.target.classList.add('active');
-        const color = e.target.getAttribute('data-color');
-        const name = e.target.getAttribute('data-name');
-        window.changeColor(color, name);
-      });
-    });
-
-    // Resize Handler
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-
-  <script>
-    // --- Modal Payment Logic ---
-    function openPaymentModal() {
-      document.getElementById('paymentModal').style.display = 'flex';
-    }
-
-    function closePaymentModal() {
-      document.getElementById('paymentModal').style.display = 'none';
-    }
-
-    function handlePayment(e) {
-      e.preventDefault();
-      alert('Deposit Authorized! A Maranello Private Client Specialist has been assigned to your allocation.');
-      closePaymentModal();
-    }
-  </script>
-</body>
-</html>
+    // 7. Paint Customization Event Handlers
+    document.querySelectorAll('.swatch-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.swatch-btn').forEach(b => b.classList.remove('active'));
+        const swatch = e.cu
