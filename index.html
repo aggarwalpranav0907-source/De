@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ferrari LaFerrari 3D Experience</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      overflow: hidden;
+      background-color: #0b0b0b;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      color: #fff;
+    }
+    #webgl-container {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    .ui-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem 4rem;
+    }
+    header h1 {
+      font-size: 3rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      font-weight: 800;
+    }
+    header span {
+      color: #e60000; /* Rosso Corsa */
+    }
+    .specs {
+      display: flex;
+      gap: 3rem;
+    }
+    .spec-item h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    .spec-item p {
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #888;
+    }
+    .controls-hint {
+      position: absolute;
+      bottom: 3rem;
+      right: 4rem;
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ui-overlay">
+    <header>
+      <p style="letter-spacing: 2px; color: #888; font-size: 0.8rem;">HYBRID V12</p>
+      <h1>La<span>Ferrari</span></h1>
+    </header>
+
+    <div class="specs">
+      <div class="spec-item">
+        <h3>950 HP</h3>
+        <p>Combined Output</p>
+      </div>
+      <div class="spec-item">
+        <h3>2.4s</h3>
+        <p>0–60 MPH</p>
+      </div>
+      <div class="spec-item">
+        <h3>217+ MPH</h3>
+        <p>Top Speed</p>
+      </div>
+    </div>
+
+    <div class="controls-hint">Drag to rotate • Scroll to zoom</div>
+  </div>
+
+  <div id="webgl-container"></div>
+
+  <!-- Three.js + OrbitControls + GLTFLoader CDN -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    // Scene & Camera
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0a0a);
+    scene.fog = new THREE.Fog(0x0a0a0a, 10, 30);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(4, 1.8, 5);
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.getElementById('webgl-container').appendChild(renderer.domElement);
+
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2.05; // Prevent camera clipping below floor
+    controls.minDistance = 3;
+    controls.maxDistance = 12;
+
+    // Studio Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.SpotLight(0xffffff, 30);
+    keyLight.position.set(5, 8, 5);
+    keyLight.angle = Math.PI / 4;
+    keyLight.penumbra = 0.8;
+    keyLight.castShadow = true;
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0xe60000, 2);
+    rimLight.position.set(-5, 3, -5);
+    scene.add(rimLight);
+
+    // Showroom Ground Grid
+    const floorGeo = new THREE.PlaneGeometry(50, 50);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      roughness: 0.4,
+      metalness: 0.8
+    });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const grid = new THREE.GridHelper(50, 40, 0x333333, 0x1a1a1a);
+    grid.position.y = 0.01;
+    scene.add(grid);
+
+    // Load LaFerrari Model
+    // Replace 'models/laferrari.glb' with the direct path to your model file
+    const loader = new GLTFLoader();
+    loader.load(
+      'models/laferrari.glb',
+      (gltf) => {
+        const car = gltf.scene;
+        car.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+        car.position.set(0, 0, 0);
+        scene.add(car);
+      },
+      undefined,
+      (error) => {
+        console.warn('Model path missing. Adding fallback display object.');
+        // Fallback placeholder shape if GLB is not yet linked
+        const placeholderGeo = new THREE.BoxGeometry(4, 0.8, 1.8);
+        const placeholderMat = new THREE.MeshStandardMaterial({
+          color: 0xd90429,
+          metalness: 0.9,
+          roughness: 0.1
+        });
+        const placeholder = new THREE.Mesh(placeholderGeo, placeholderMat);
+        placeholder.position.y = 0.4;
+        placeholder.castShadow = true;
+        scene.add(placeholder);
+      }
+    );
+
+    // Responsive Resizing
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Render Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
