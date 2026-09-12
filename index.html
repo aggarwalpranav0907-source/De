@@ -1,219 +1,702 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ferrari LaFerrari 3D Experience</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ferrari LaFerrari Aperta | The Experience</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      overflow: hidden;
-      background-color: #0b0b0b;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      color: #fff;
+    :root {
+      --primary-red: #d40000;
+      --bg-dark: #0a0a0a;
+      --card-bg: rgba(22, 22, 24, 0.85);
+      --border-glow: rgba(255, 255, 255, 0.12);
+      --font-main: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     }
-    #webgl-container {
-      width: 100vw;
-      height: 100vh;
-      position: absolute;
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: #fff;
+      font-family: var(--font-main);
+      overflow-x: hidden;
+    }
+
+    /* Fixed WebGL Canvas Behind Content */
+    #webgl-canvas {
+      position: fixed;
       top: 0;
       left: 0;
+      width: 100vw;
+      height: 100vh;
       z-index: 1;
+      pointer-events: none;
     }
-    .ui-overlay {
-      position: absolute;
+
+    /* Navbar */
+    header {
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      z-index: 2;
-      pointer-events: none;
+      padding: 1.5rem 3rem;
       display: flex;
-      flex-direction: column;
       justify-content: space-between;
-      padding: 3rem 4rem;
+      align-items: center;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
     }
-    header h1 {
-      font-size: 3rem;
-      text-transform: uppercase;
-      letter-spacing: 4px;
+
+    .brand {
+      font-size: 1.25rem;
+      letter-spacing: 5px;
       font-weight: 800;
-    }
-    header span {
-      color: #e60000; /* Rosso Corsa */
-    }
-    .specs {
-      display: flex;
-      gap: 3rem;
-    }
-    .spec-item h3 {
-      font-size: 1.8rem;
-      font-weight: 700;
-    }
-    .spec-item p {
-      font-size: 0.85rem;
-      letter-spacing: 1px;
       text-transform: uppercase;
-      color: #888;
+      color: #fff;
     }
-    .controls-hint {
-      position: absolute;
-      bottom: 3rem;
-      right: 4rem;
-      font-size: 0.8rem;
+
+    .brand span { color: var(--primary-red); }
+
+    nav a {
+      color: #bbb;
+      text-decoration: none;
+      margin-left: 2rem;
+      font-size: 0.9rem;
       letter-spacing: 1.5px;
       text-transform: uppercase;
+      transition: color 0.3s;
+    }
+
+    nav a:hover { color: #fff; }
+
+    /* Scrollable Container */
+    .content-stream {
+      position: relative;
+      z-index: 2;
+    }
+
+    section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6rem 10vw;
+      position: relative;
+    }
+
+    /* Hero Section */
+    #hero {
+      align-items: flex-start;
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      font-size: 0.85rem;
+      letter-spacing: 4px;
+      color: var(--primary-red);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 7vw, 6.5rem);
+      line-height: 0.95;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      max-width: 800px;
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #777;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+      40% { transform: translateY(-10px) translateX(-50%); }
+      60% { transform: translateY(-5px) translateX(-50%); }
+    }
+
+    /* Customizer Section */
+    #customizer {
+      align-items: flex-end;
+    }
+
+    .customizer-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glow);
+      padding: 3rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 440px;
+      pointer-events: auto;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+    }
+
+    .customizer-card h2 {
+      font-size: 1.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+    }
+
+    .color-swatches {
+      display: flex;
+      gap: 1rem;
+      margin: 1.8rem 0;
+    }
+
+    .swatch {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .swatch:hover { transform: scale(1.1); }
+    .swatch.active { border-color: #fff; transform: scale(1.15); }
+
+    .color-name {
+      font-size: 1rem;
+      color: #bbb;
+      margin-bottom: 1.5rem;
+      min-height: 24px;
+    }
+
+    /* History Section */
+    #history {
+      background: linear-gradient(180deg, transparent, rgba(10,10,10,0.95) 20%, rgba(10,10,10,0.95) 80%, transparent);
+    }
+
+    .history-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 3rem;
+      border-left: 4px solid var(--primary-red);
+      padding-left: 1.5rem;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .timeline-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-glow);
+      padding: 2rem;
+      border-radius: 8px;
+    }
+
+    .timeline-year {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary-red);
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-item p {
       color: #aaa;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Checkout Section */
+    #checkout {
+      align-items: center;
+    }
+
+    .checkout-box {
+      background: var(--card-bg);
+      backdrop-filter: blur(25px);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      padding: 3.5rem;
+      width: 100%;
+      max-width: 650px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+      color: #aaa;
+    }
+
+    .summary-line.total {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      border-top: 1px solid var(--border-glow);
+      padding-top: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      padding: 1.25rem;
+      background: var(--primary-red);
+      border: none;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 1rem;
+      margin-top: 2rem;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .checkout-btn:hover {
+      background: #b30000;
+      transform: translateY(-2px);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-box {
+      background: #141416;
+      border: 1px solid var(--border-glow);
+      padding: 2.5rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 450px;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: #202024;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 0.95rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
     }
   </style>
 </head>
 <body>
 
-  <div class="ui-overlay">
-    <header>
-      <p style="letter-spacing: 2px; color: #888; font-size: 0.8rem;">HYBRID V12</p>
-      <h1>La<span>Ferrari</span></h1>
-    </header>
+  <header>
+    <div class="brand">Scuderia <span>Aperta</span></div>
+    <nav>
+      <a href="#hero">Overview</a>
+      <a href="#customizer">Configure</a>
+      <a href="#history">Legacy</a>
+      <a href="#checkout">Reserve</a>
+    </nav>
+  </header>
 
-    <div class="specs">
-      <div class="spec-item">
-        <h3>950 HP</h3>
-        <p>Combined Output</p>
-      </div>
-      <div class="spec-item">
-        <h3>2.4s</h3>
-        <p>0–60 MPH</p>
-      </div>
-      <div class="spec-item">
-        <h3>217+ MPH</h3>
-        <p>Top Speed</p>
-      </div>
-    </div>
+  <!-- 3D Background Canvas -->
+  <div id="webgl-canvas"></div>
 
-    <div class="controls-hint">Drag to rotate • Scroll to zoom</div>
+  <!-- Scrollable Sections -->
+  <div class="content-stream">
+    
+    <!-- Hero / Intro -->
+    <section id="hero">
+      <div class="hero-badge">Limited Open-Top Hypercar</div>
+      <h1 class="hero-title">LaFerrari Spider</h1>
+      <div class="scroll-indicator">Scroll down to launch &darr;</div>
+    </section>
+
+    <!-- Visualizer / Color Selection -->
+    <section id="customizer">
+      <div class="customizer-card">
+        <h2>Atelier Spec</h2>
+        <p style="color: #888; font-size: 0.9rem;">Configure factory livery applied directly to carbon-chassis components.</p>
+        
+        <div class="color-swatches">
+          <div class="swatch active" data-color="#d40000" data-name="Rosso Corsa" style="background: #d40000;"></div>
+          <div class="swatch" data-color="#f6b800" data-name="Giallo Modena" style="background: #f6b800;"></div>
+          <div class="swatch" data-color="#0d0d0d" data-name="Nero Daytona" style="background: #0d0d0d;"></div>
+          <div class="swatch" data-color="#eeeeee" data-name="Bianco Avus" style="background: #eeeeee;"></div>
+          <div class="swatch" data-color="#0a2a5e" data-name="Blu Tour de France" style="background: #0a2a5e;"></div>
+        </div>
+
+        <div class="color-name" id="selected-color-label">Selected: Rosso Corsa</div>
+        <a href="#checkout" style="color: var(--primary-red); font-weight: 700; text-decoration: none; font-size: 0.9rem; text-transform: uppercase;">Continue to Order &rarr;</a>
+      </div>
+    </section>
+
+    <!-- History / Heritage -->
+    <section id="history">
+      <div class="history-container">
+        <h2 class="section-header">The Aperta Bloodline</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-year">1947</div>
+            <h3>125 S Genesis</h3>
+            <p>Enzo Ferrari unleashes the 1.5-liter V12 125 S on the Piacenza circuit, forging an era of uncompromising motorsport DNA.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2013</div>
+            <h3>Hybrid Revolution</h3>
+            <p>The definitive LaFerrari combines a screeching naturally aspirated 6.3L V12 with an F1-derived HY-KERS electric powertrain.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2016</div>
+            <h3>The Spider/Aperta</h3>
+            <p>Produced to celebrate Ferrari's 70th Anniversary: an open-top roadster providing visceral open-air acoustics without aerodynamic loss.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Checkout -->
+    <section id="checkout">
+      <div class="checkout-box">
+        <h2 style="font-size: 2rem; margin-bottom: 2rem; text-transform: uppercase;">Vehicle Allocation</h2>
+        
+        <div class="summary-line">
+          <span>Model</span>
+          <span style="color: #fff;">LaFerrari Aperta (V12 Spider)</span>
+        </div>
+        <div class="summary-line">
+          <span>Selected Livery</span>
+          <span style="color: #fff;" id="checkout-color">Rosso Corsa</span>
+        </div>
+        <div class="summary-line">
+          <span>Powertrain</span>
+          <span style="color: #fff;">6.3L V12 + 120 kW HY-KERS</span>
+        </div>
+        <div class="summary-line">
+          <span>Global Delivery & Inspection</span>
+          <span style="color: #fff;">Included</span>
+        </div>
+        <div class="summary-line total">
+          <span>MSRP Equivalent</span>
+          <span style="color: var(--primary-red);">$3,900,000</span>
+        </div>
+
+        <button class="checkout-btn" onclick="openPaymentModal()">Proceed to Deposit ($250,000)</button>
+      </div>
+    </section>
+
   </div>
 
-  <div id="webgl-container"></div>
+  <!-- Modal Payment Gateway -->
+  <div class="modal-backdrop" id="paymentModal">
+    <div class="modal-box">
+      <h3 style="font-size: 1.4rem; margin-bottom: 1.5rem; text-transform: uppercase;">Maranello Escrow Portal</h3>
+      <form onsubmit="handlePayment(event)">
+        <div class="form-group">
+          <label>Full Legal Name</label>
+          <input type="text" required placeholder="Enzo Ferrari" />
+        </div>
+        <div class="form-group">
+          <label>Escrow Wire / Card Routing Number</label>
+          <input type="text" required placeholder="•••• •••• •••• 9500" />
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1;">
+            <label>Expiry</label>
+            <input type="text" required placeholder="MM/YY" />
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>CVC</label>
+            <input type="password" required maxlength="4" placeholder="123" />
+          </div>
+        </div>
+        <button type="submit" class="checkout-btn" style="margin-top: 1rem;">Authorize Escrow Deposit</button>
+        <button type="button" onclick="closePaymentModal()" style="background: none; border: none; color: #888; display: block; width: 100%; margin-top: 1rem; cursor: pointer;">Cancel</button>
+      </form>
+    </div>
+  </div>
 
-  <!-- Three.js + OrbitControls + GLTFLoader CDN -->
+  <!-- Three.js CDN -->
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
       }
     }
   </script>
 
   <script type="module">
     import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    // Scene & Camera
+    // --- Scene, Camera, and Renderer ---
+    const container = document.getElementById('webgl-canvas');
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0a0a);
-    scene.fog = new THREE.Fog(0x0a0a0a, 10, 30);
+    scene.fog = new THREE.FogExp2(0x0a0a0a, 0.028);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(4, 1.8, 5);
+    camera.position.set(0, 1.6, 12);
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.2;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    document.getElementById('webgl-container').appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
 
-    // Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2.05; // Prevent camera clipping below floor
-    controls.minDistance = 3;
-    controls.maxDistance = 12;
-
-    // Studio Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    // --- Studio Lighting ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.SpotLight(0xffffff, 30);
-    keyLight.position.set(5, 8, 5);
-    keyLight.angle = Math.PI / 4;
-    keyLight.penumbra = 0.8;
-    keyLight.castShadow = true;
-    scene.add(keyLight);
+    const mainSpot = new THREE.SpotLight(0xffffff, 40);
+    mainSpot.position.set(5, 10, 8);
+    mainSpot.angle = Math.PI / 4;
+    mainSpot.penumbra = 0.5;
+    mainSpot.castShadow = true;
+    scene.add(mainSpot);
 
-    const rimLight = new THREE.DirectionalLight(0xe60000, 2);
-    rimLight.position.set(-5, 3, -5);
-    scene.add(rimLight);
+    const backRim = new THREE.DirectionalLight(0xff2200, 4);
+    backRim.position.set(-6, 4, -8);
+    scene.add(backRim);
 
-    // Showroom Ground Grid
-    const floorGeo = new THREE.PlaneGeometry(50, 50);
-    const floorMat = new THREE.MeshStandardMaterial({
-      color: 0x111111,
-      roughness: 0.4,
+    // --- Ground Grid Reflection Surface ---
+    const groundGeo = new THREE.PlaneGeometry(100, 100);
+    const groundMat = new THREE.MeshStandardMaterial({
+      color: 0x050505,
+      roughness: 0.2,
       metalness: 0.8
     });
-    const floor = new THREE.Mesh(floorGeo, floorMat);
-    floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
-    scene.add(floor);
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
 
-    const grid = new THREE.GridHelper(50, 40, 0x333333, 0x1a1a1a);
+    const grid = new THREE.GridHelper(100, 60, 0x333333, 0x111111);
     grid.position.y = 0.01;
     scene.add(grid);
 
-    // Load LaFerrari Model
-    // Replace 'models/laferrari.glb' with the direct path to your model file
-    const loader = new GLTFLoader();
-    loader.load(
-      'models/laferrari.glb',
-      (gltf) => {
-        const car = gltf.scene;
-        car.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-          }
-        });
-        car.position.set(0, 0, 0);
-        scene.add(car);
-      },
-      undefined,
-      (error) => {
-        console.warn('Model path missing. Adding fallback display object.');
-        // Fallback placeholder shape if GLB is not yet linked
-        const placeholderGeo = new THREE.BoxGeometry(4, 0.8, 1.8);
-        const placeholderMat = new THREE.MeshStandardMaterial({
-          color: 0xd90429,
-          metalness: 0.9,
-          roughness: 0.1
-        });
-        const placeholder = new THREE.Mesh(placeholderGeo, placeholderMat);
-        placeholder.position.y = 0.4;
-        placeholder.castShadow = true;
-        scene.add(placeholder);
-      }
-    );
+    // --- Procedural High-Detail Spider Group ---
+    // (Constructed dynamically so the car loads immediately without external asset delays)
+    const carGroup = new THREE.Group();
 
-    // Responsive Resizing
+    // Body Paint Material (Metallic Automotive Clear-Coat)
+    const carPaintMaterial = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(0xd40000),
+      metalness: 0.85,
+      roughness: 0.18,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.05,
+      reflectivity: 0.9
+    });
+
+    const carbonMaterial = new THREE.MeshStandardMaterial({
+      color: 0x151515,
+      roughness: 0.4,
+      metalness: 0.6
+    });
+
+    const wheelMaterial = new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      roughness: 0.8
+    });
+
+    const rimMaterial = new THREE.MeshStandardMaterial({
+      color: 0xcccccc,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+
+    // 1. Sleek Chassis Body
+    const bodyGeo = new THREE.BoxGeometry(2.0, 0.45, 4.4);
+    const bodyMesh = new THREE.Mesh(bodyGeo, carPaintMaterial);
+    bodyMesh.position.y = 0.45;
+    bodyMesh.castShadow = true;
+    carGroup.add(bodyMesh);
+
+    // 2. Open-Top Spider Cockpit & Aero Fairings
+    const cockpitGeo = new THREE.BoxGeometry(1.4, 0.35, 1.8);
+    const cockpitMesh = new THREE.Mesh(cockpitGeo, carbonMaterial);
+    cockpitMesh.position.set(0, 0.75, -0.2);
+    carGroup.add(cockpitMesh);
+
+    // Aerodynamic Twin Rear Fairings (Aperta signature)
+    const fairingGeo = new THREE.CylinderGeometry(0.15, 0.28, 1.2, 16);
+    fairingGeo.rotateX(Math.PI / 2);
+    const leftFairing = new THREE.Mesh(fairingGeo, carPaintMaterial);
+    leftFairing.position.set(-0.45, 0.8, -0.6);
+    const rightFairing = leftFairing.clone();
+    rightFairing.position.x = 0.45;
+    carGroup.add(leftFairing, rightFairing);
+
+    // 3. Front Wedge Nose
+    const noseGeo = new THREE.ConeGeometry(0.95, 1.4, 4);
+    noseGeo.rotateX(-Math.PI / 2);
+    const nose = new THREE.Mesh(noseGeo, carPaintMaterial);
+    nose.position.set(0, 0.38, 2.7);
+    nose.scale.set(1.4, 0.35, 0.8);
+    carGroup.add(nose);
+
+    // 4. Wheels
+    const tireGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.35, 24);
+    tireGeo.rotateZ(Math.PI / 2);
+    const rimGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.36, 16);
+    rimGeo.rotateZ(Math.PI / 2);
+
+    const wheelPositions = [
+      [-1.0, 0.38, 1.4],  // front left
+      [1.0, 0.38, 1.4],   // front right
+      [-1.02, 0.4, -1.4], // rear left
+      [1.02, 0.4, -1.4]   // rear right
+    ];
+
+    wheelPositions.forEach(pos => {
+      const tire = new THREE.Mesh(tireGeo, wheelMaterial);
+      const rim = new THREE.Mesh(rimGeo, rimMaterial);
+      tire.position.set(...pos);
+      rim.position.set(...pos);
+      tire.castShadow = true;
+      carGroup.add(tire);
+      carGroup.add(rim);
+    });
+
+    scene.add(carGroup);
+
+    // --- Scroll Driven Animation Logic ---
+    // At top of page: car starts deep back on the track (z = -18)
+    // As user scrolls: drives forward towards camera, banks slightly, stops in presentation pose
+    let scrollFraction = 0;
+
+    function onScroll() {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      scrollFraction = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // --- Render Loop with Smooth Interpolation ---
+    let targetZ = -18;
+    let targetX = 0;
+    let targetRotY = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Interpolate driving motion depending on scroll depth:
+      // Hero (0.0): In the background driving forward
+      // Customizer (0.33): Stops in clear view, angles for showroom view
+      // History (0.66): Slides over to reveal timeline cards
+      // Checkout (1.0): Settles front-center
+      if (scrollFraction < 0.35) {
+        const norm = scrollFraction / 0.35;
+        targetZ = -18 + norm * 18.5; // Arrives from -18 to +0.5
+        targetX = Math.sin(norm * Math.PI) * -1.8;
+        targetRotY = (1 - norm) * 0.4;
+      } else if (scrollFraction < 0.7) {
+        targetZ = 0.5;
+        targetX = -2.2; // Slide left so customizer UI stays clear
+        targetRotY = -0.55;
+      } else {
+        targetZ = 1.0;
+        targetX = 1.8; // Slide right for checkout view
+        targetRotY = 0.45;
+      }
+
+      // Smooth camera/car dampening (Lerp)
+      carGroup.position.z += (targetZ - carGroup.position.z) * 0.05;
+      carGroup.position.x += (targetX - carGroup.position.x) * 0.05;
+      carGroup.rotation.y += (targetRotY - carGroup.rotation.y) * 0.05;
+
+      // Subtle resting idle vibration
+      carGroup.position.y = Math.sin(Date.now() * 0.003) * 0.015;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // --- Color Customizer Interaction ---
+    window.changeColor = function(hex, name) {
+      carPaintMaterial.color.set(hex);
+      document.getElementById('selected-color-label').innerText = `Selected: ${name}`;
+      document.getElementById('checkout-color').innerText = name;
+    };
+
+    document.querySelectorAll('.swatch').forEach(swatch => {
+      swatch.addEventListener('click', (e) => {
+        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+        e.target.classList.add('active');
+        const color = e.target.getAttribute('data-color');
+        const name = e.target.getAttribute('data-name');
+        window.changeColor(color, name);
+      });
+    });
+
+    // Resize Handler
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
+  </script>
 
-    // Render Loop
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
+  <script>
+    // --- Modal Payment Logic ---
+    function openPaymentModal() {
+      document.getElementById('paymentModal').style.display = 'flex';
     }
-    animate();
+
+    function closePaymentModal() {
+      document.getElementById('paymentModal').style.display = 'none';
+    }
+
+    function handlePayment(e) {
+      e.preventDefault();
+      alert('Deposit Authorized! A Maranello Private Client Specialist has been assigned to your allocation.');
+      closePaymentModal();
+    }
   </script>
 </body>
 </html>
